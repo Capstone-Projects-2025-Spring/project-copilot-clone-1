@@ -3,7 +3,7 @@ sidebar_position: 2
 ---
 
 # System Block Diagram
-![System Block Diagram](/documentation/static/img/SystemBlockDiagram.jpg)
+![System Block Diagram](/img/SystemBlockDiagram.jpg)
 
 Our project tech stack will consist as a VS Code Extension for the front-end and a server hosting a SQL database and local Deepseek model as the backend.
 
