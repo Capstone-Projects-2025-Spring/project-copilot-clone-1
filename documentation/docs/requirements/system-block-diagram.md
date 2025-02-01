@@ -3,12 +3,7 @@ sidebar_position: 2
 ---
 
 # System Block Diagram
-import Figure from "../../src/components/Figure";
-<Figure caption={"Figure 1 High-Level Design of the EduCode application."}>
-
 ![System Block Diagram](/documentation/static/img/SystemBlockDiagram.jpg)
-
-</Figure>
 
 Our project tech stack will consist as a VS Code Extension for the front-end and a server hosting a SQL database and local Deepseek model as the backend.
 
