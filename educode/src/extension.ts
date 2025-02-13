@@ -17,6 +17,15 @@ export function activate(context: vscode.ExtensionContext) {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
 		vscode.window.showInformationMessage('Hello World from EduCode!');
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			const text = document.getText();
+			console.log(text);
+			console.log(document.fileName);
+		}else{
+			console.log("No active editor");
+		}
 	});
 
 	context.subscriptions.push(disposable);
