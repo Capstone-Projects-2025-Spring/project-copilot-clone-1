@@ -10,9 +10,9 @@ import Figure from '../../src/components/Figure';
   ![System Block Diagram](/img/SystemBlockDiagram.jpg)
 </Figure>
 
+### Description
+ADD MORE TEXT HERE
 
-Our project tech stack will consist as a VS Code Extension for the front-end and a server hosting a SQL database and local Deepseek model as the backend.
+The backend will be built using FastAPI, a modern, high-performance web framework designed for building APIs with Python. It supports asynchronous programming, enabling the handling of concurrent requests without blocking, making it suitable for scalable applications. The FastAPI backend will connect to an SQL database to store critical information, including user profiles, lines of code, acceptance history, and suggestions from the AI model. The SQL database will provide structured storage and efficient querying capabilities for the stored data. The backend will interact with the ChatGPT model via an API, generating real-time code suggestions based on the user’s activity. 
 
-Our backend will need to store the user's profile, lines of code, acceptance history and suggestions from our LLM. Deepseek will be deployed locally, granting privacy and less financial burden on our clients.
-
-Our front-end will present coding suggestions as the user is working, allowing them to accept/reject the suggestion. This extension will be built using Typescript.
+These suggestions will be presented to the user through the front-end VS Code extension, and the user's responses (accept/reject) will be stored in the backend along with the historical data for continuous improvement of the system. Additionally, relevant statistics will be logged and displayed on a dashboard, allowing administrators or users to monitor overall performance and gain insights into user behavior and engagement over time.
