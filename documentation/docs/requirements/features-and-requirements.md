@@ -12,7 +12,7 @@ sidebar_position: 4
     - Whether suggested code is accepted or rejected.
     - Time taken for the user to accept a suggestion.
     - A method for evaluating the accuracy of suggestions.
-- Users will have option to customize Copilot’s behavior, including:
+- Users will have option to customize EduCode’s behavior, including:
     - Modifying the frequency of code suggestions
     - Enabling/disabling specific features
 - The plugin will provide a dashboard for users to view their usage metrics and performance data.
