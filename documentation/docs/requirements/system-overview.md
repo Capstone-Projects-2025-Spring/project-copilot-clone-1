@@ -5,7 +5,7 @@ sidebar_position: 1
 # System Overview
 
 ## Project Abstract
-Many students use AI assistant tools such as ChatGPT to assist them with their programming sessions. However, it's been proven that students have been using these tools improperly which hinders the development process. EduCode proposes a solution to this problem by coming packaged with familiar features such as real-time code suggestion and generation. As well as monitoring features that generate helpful metrics to improve usage.
+EduCode is a vscode extension that uses AI to provide real-time code suggestions, rich logging to monitor the user's usage of the AI assistant, and a dashboard that displays metrics to improve user's usage of the AI assistant.
 
 ## Conceptual Design
 EduCode will be a VSCode extension. The frontend of the application will be written in TypeScript, HTML, and CSS using the VS Code API which provides functionality for the interface of the application. The backend will consist of a server to make calls to OpenAI, handle API requests from the client side, and communicate with the database.
