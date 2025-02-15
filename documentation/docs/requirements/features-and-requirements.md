@@ -5,10 +5,7 @@ sidebar_position: 4
 # Features and Requirements
 
 ## Functional Requirements 
-- Users must download VS Code and install the GitHub Copilot plugin.
-- Users must authenticate their accounts to use the GitHub Copilot plugin.
-    - Users will have the option to log in anonymously while still receiving suggestions.
-- The plugin will provide code suggestions based on the code the user has already written.
+- The EduCode plugin will provide code suggestions based on the code the user has already written.
 - Suggestions will be generated in real-time based on the user’s current code context.
 - Users can accept or reject code suggestions, with the system logging these interactions.
 - The system must log user interactions, including:
