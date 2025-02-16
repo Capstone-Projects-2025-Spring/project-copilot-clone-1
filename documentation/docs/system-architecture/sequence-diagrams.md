@@ -5,7 +5,7 @@ sidebar_position: 3
 # Sequence Diagrams
 
 ## Use Case 1
-
+**User signs into EduCode for school as educator or student**
 ```mermaid
 sequenceDiagram 
   actor User
@@ -19,7 +19,7 @@ sequenceDiagram
 ```
 
 ## Use Case 2
-
+**Student uses EduCode to autocomplete written code**
 ```mermaid
 sequenceDiagram 
   actor User
@@ -38,7 +38,7 @@ sequenceDiagram
 ```
 
 ## Use Case 3
-
+**Student uses EduCode to ask AI to write a complete function for them**
 ```mermaid
 sequenceDiagram 
   actor User
@@ -56,7 +56,7 @@ sequenceDiagram
   Server->>Database: Log Suggestion and Acceptance/Rejection
 ```
 ## Use Case 4
-
+**Student uses EduCode to ask AI to explain a concept or code**
 ```mermaid
 sequenceDiagram 
   actor User
@@ -71,7 +71,7 @@ sequenceDiagram
 ```
 
 ## Use Case 5
-
+**Student is provided an inaccurate suggestion**
 ```mermaid
 sequenceDiagram 
   actor User
@@ -91,7 +91,7 @@ sequenceDiagram
 ```
 
 ## Use Case 6
-
+**System recognizes student is misusing AI assiantance and limits suggestions**
 ```mermaid
 sequenceDiagram 
   actor User
@@ -111,7 +111,7 @@ sequenceDiagram
 ```
 
 ## Use Case 7
-
+**Student is given a Mini-Quiz to unlock suggestions again**
 ```mermaid
 sequenceDiagram 
   actor User
@@ -142,7 +142,7 @@ sequenceDiagram
 ```
 
 ## Use Case 8
-
+**Educator views Metrics for single student**
 ```mermaid
 sequenceDiagram 
   actor User as Educator
@@ -160,7 +160,7 @@ sequenceDiagram
 ```
 
 ## Use Case 9
-
+**Educator views Metrics for class for an assignment or time period**
 ```mermaid
 sequenceDiagram 
   actor User as Educator
@@ -178,7 +178,7 @@ sequenceDiagram
 ```
 
 ## Use Case 10
-
+**Student views metrics for their own AI use**
 ```mermaid
 sequenceDiagram 
   actor User as Student
