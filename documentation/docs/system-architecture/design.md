@@ -2,17 +2,45 @@
 sidebar_position: 1
 ---
 
-**Purpose**
+**EduCode**
 
-The Design Document - Part I Architecture describes the software architecture and how the requirements are mapped into the design. This document will be a combination of diagrams and text that describes what the diagrams are showing.
+***Main Functionality***
 
-**Requirements**
+EduCode will give users code suggestions to help streamline development. The database will 
+store automated suggestions and user code. EduCode will be great to apply in a classroom setting to
+see how students actually think and code.
 
-In addition to the general requirements the Design Document - Part I Architecture will contain:
+***User Applications***
 
-A description the different components and their interfaces. For example: client, server, database.
+EduCode can be used by developers of all levels. This extension will accelerate development along
+with extensive logging and feedback. Instructors are able to use EduCode to see how their students are 
+thinking. 
 
-For each component provide class diagrams showing the classes to be developed (or used) and their relationship.
+***Data Base Design***
+
+The database for this extension will be hosted by MongoDB. It will store the users code with a timestamp, accepted suggestions
+and denied suggestions.
+
+ -MongoDB
+
+
+
+***AI Automation***
+
+For this extension we will be using a locally hosted LLM for creating the suggestions to the user.
+
+-OpenAI
+-DeepSeek
+
+***Backend Model***
+
+In the background the extension will create suggestions for the user and store activity.
+If a user were to accept a suggestion, the model would store the suggestion with a related timestamp.
+
+
+
+
+
 
 Sequence diagrams showing the data flow for _all_ use cases. One sequence diagram corresponds to one use case and different use cases should have different corresponding sequence diagrams.
 
