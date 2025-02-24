@@ -13,7 +13,8 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/Completion'
   /logs:
     get:
       summary: Read Logs
@@ -23,7 +24,11 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                items:
+                  $ref: '#/components/schemas/CodeSnippet'
+                type: array
+                title: Response Read Logs Logs Get
     post:
       summary: Log Data
       operationId: log_data_logs_post
@@ -39,7 +44,11 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                items:
+                  $ref: '#/components/schemas/CodeSnippet'
+                type: array
+                title: Response Log Data Logs Post
         '422':
           description: Validation Error
           content:
@@ -48,6 +57,143 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    CodeSnippet:
+      properties:
+        userId:
+          type: string
+          title: Userid
+        language:
+          type: string
+          title: Language
+        code:
+          type: string
+          title: Code
+        createdAt:
+          type: string
+          format: date-time
+          title: Createdat
+      type: object
+      required:
+        - userId
+        - language
+        - code
+        - createdAt
+      title: CodeSnippet
+    Completion:
+      properties:
+        id:
+          type: string
+          title: Id
+        choices:
+          items:
+            $ref: '#/components/schemas/CompletionChoice'
+          type: array
+          title: Choices
+        created:
+          type: integer
+          title: Created
+        model:
+          type: string
+          title: Model
+        object:
+          type: string
+          const: text_completion
+          title: Object
+        system_fingerprint:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: System Fingerprint
+        usage:
+          anyOf:
+            - $ref: '#/components/schemas/CompletionUsage'
+            - type: 'null'
+      additionalProperties: true
+      type: object
+      required:
+        - id
+        - choices
+        - created
+        - model
+        - object
+      title: Completion
+    CompletionChoice:
+      properties:
+        finish_reason:
+          type: string
+          enum:
+            - stop
+            - length
+            - content_filter
+          title: Finish Reason
+        index:
+          type: integer
+          title: Index
+        logprobs:
+          anyOf:
+            - $ref: '#/components/schemas/Logprobs'
+            - type: 'null'
+        text:
+          type: string
+          title: Text
+      additionalProperties: true
+      type: object
+      required:
+        - finish_reason
+        - index
+        - text
+      title: CompletionChoice
+    CompletionTokensDetails:
+      properties:
+        accepted_prediction_tokens:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Accepted Prediction Tokens
+        audio_tokens:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Audio Tokens
+        reasoning_tokens:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Reasoning Tokens
+        rejected_prediction_tokens:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Rejected Prediction Tokens
+      additionalProperties: true
+      type: object
+      title: CompletionTokensDetails
+    CompletionUsage:
+      properties:
+        completion_tokens:
+          type: integer
+          title: Completion Tokens
+        prompt_tokens:
+          type: integer
+          title: Prompt Tokens
+        total_tokens:
+          type: integer
+          title: Total Tokens
+        completion_tokens_details:
+          anyOf:
+            - $ref: '#/components/schemas/CompletionTokensDetails'
+            - type: 'null'
+        prompt_tokens_details:
+          anyOf:
+            - $ref: '#/components/schemas/PromptTokensDetails'
+            - type: 'null'
+      additionalProperties: true
+      type: object
+      required:
+        - completion_tokens
+        - prompt_tokens
+        - total_tokens
+      title: CompletionUsage
     HTTPValidationError:
       properties:
         detail:
@@ -57,6 +203,56 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    Logprobs:
+      properties:
+        text_offset:
+          anyOf:
+            - items:
+                type: integer
+              type: array
+            - type: 'null'
+          title: Text Offset
+        token_logprobs:
+          anyOf:
+            - items:
+                type: number
+              type: array
+            - type: 'null'
+          title: Token Logprobs
+        tokens:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Tokens
+        top_logprobs:
+          anyOf:
+            - items:
+                additionalProperties:
+                  type: number
+                type: object
+              type: array
+            - type: 'null'
+          title: Top Logprobs
+      additionalProperties: true
+      type: object
+      title: Logprobs
+    PromptTokensDetails:
+      properties:
+        audio_tokens:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Audio Tokens
+        cached_tokens:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Cached Tokens
+      additionalProperties: true
+      type: object
+      title: PromptTokensDetails
     ValidationError:
       properties:
         loc:
