@@ -14,7 +14,7 @@ client = OpenAI(
     base_url=BASE_URL,
 )
 
-@router.post('/suggest', status_code=200)
+@router.get('/suggest', status_code=200)
 async def generate_suggestion(request: CodeRequest):
     """
     Generate a suggestion for the given code snippet based on instructions.
@@ -29,7 +29,7 @@ async def generate_suggestion(request: CodeRequest):
     **Response:**
     - `Response`: A generated code snippet based on the input code and instructions.
 
-    - **Responses:**
+    - **Response status:**
       - `200 OK`: Successfully generated code.
       - `500 Internal Server Error`: If an error occurs during the generation.
     """
