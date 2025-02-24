@@ -52,7 +52,9 @@ classDiagram
 
 ```
 ## Back End Diagram
+```mermaid
 classDiagram
+
     class User {
         +String userId
         +String username
@@ -97,6 +99,8 @@ classDiagram
     BackendAPI "1" -- "1" MongoDB : interacts_with
     BackendAPI "1" -- "1" OpenAI_LLM : requests_suggestions
     OpenAI_LLM "1" -- "many" Suggestion : generates
+
+    ```
 ### Server
 
 ### Database
