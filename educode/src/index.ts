@@ -5,7 +5,10 @@ dotenv.config();
 
 const mongoUri = process.env.MONGO_URI!;
 const client = new MongoClient(mongoUri);
-
+/**
+ * @example Insert user created code into MongoDB
+ * @todo Implement this on the server side so that vscode extension can send the code to the server, server can log and send to AI as needed
+ */
 async function run() {
     try {
         await client.connect();
