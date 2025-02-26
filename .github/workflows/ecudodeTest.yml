@@ -29,5 +29,5 @@ jobs:
 
       - run: cd educode && xvfb-run -a yarn run test
         if: runner.os == 'Linux'
-      - run: yarn run test
+      - run: cd educode && yarn run test
         if: runner.os != 'Linux'
