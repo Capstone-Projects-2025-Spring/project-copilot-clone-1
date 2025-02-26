@@ -1,6 +1,7 @@
 # Dependencies
 /node_modules
-
+/out
+.vscode-test
 
 # Misc
 .DS_Store
