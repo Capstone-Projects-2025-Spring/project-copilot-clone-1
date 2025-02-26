@@ -1,0 +1,29 @@
+name: Pull Request Educode Test
+
+on:
+  pull_request:
+    branches:
+      - main  # Change this to your default branch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18  # Adjust this to your project's Node.js version
+      
+      - name: Install dependencies
+        run: 
+            cd eduCode && yarn
+      - name: Compile Test
+        run: 
+            cd eduCode && yarn run pretest
+
+      - name: Run Mocha tests
+        run: yarn run test
