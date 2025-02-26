@@ -26,4 +26,4 @@ jobs:
             cd educode && yarn run pretest
 
       - name: Run Mocha tests
-        run: yarn run test
+        run: cd educode && yarn run test
