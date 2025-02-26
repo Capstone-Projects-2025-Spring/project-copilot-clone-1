@@ -20,10 +20,10 @@ jobs:
       
       - name: Install dependencies
         run: 
-            cd eduCode && yarn
+            cd educode && yarn
       - name: Compile Test
         run: 
-            cd eduCode && yarn run pretest
+            cd educode && yarn run pretest
 
       - name: Run Mocha tests
         run: yarn run test
