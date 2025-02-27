@@ -6,3 +6,9 @@ class CodeRequest(BaseModel):
     """
     code: str
     instructions: str
+
+class SuggestionResponse(BaseModel):
+    """
+    Represents the response containing the generated suggestion or modified code.
+    """
+    Response: str

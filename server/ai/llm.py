@@ -2,7 +2,6 @@ from openai import OpenAI
 from .models import CodeRequest
 from dotenv import load_dotenv
 import os
-from pathlib import Path
 
 env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env')
 load_dotenv(dotenv_path=env_path)
@@ -15,6 +14,7 @@ client = OpenAI(
     api_key=API_KEY,
     base_url=BASE_URL,
 )
+
 async def generate_suggestion(request: CodeRequest):
     """
     Generate a suggestion for the given code snippet based on instructions.
@@ -36,10 +36,7 @@ async def generate_suggestion(request: CodeRequest):
             ],
             temperature=0.2,
         )
-
-        generated_code = response.choices[0].message.content
-        # generated_code = response['choices'][0]['message']['content']
-        # return {"Response": generated_code}
+        generated_code = response.choices[0].message.content;
         return generated_code
     except Exception as e:
         raise Exception(f"Error generating suggestion: {str(e)}")

@@ -1,12 +1,10 @@
 from fastapi import APIRouter, HTTPException
-from openai.types import Completion
 from .llm import generate_suggestion
-from .models import CodeRequest
+from .models import CodeRequest, SuggestionResponse
 
 router = APIRouter()
 
-# @router.get('/suggest', status_code=200, response_model=Completion)
-@router.get('/suggest', status_code=200)
+@router.get('/suggest', status_code=200, response_model=SuggestionResponse)
 # async def get_suggestion(request: CodeRequest) -> dict:
 async def get_suggestion() -> dict:
 
@@ -27,11 +25,10 @@ async def get_suggestion() -> dict:
       - `200 OK`: Successfully generated code.
       - `500 Internal Server Error`: If an error occurs during the generation.
     """
-    # return {"Response": "Here's some code..."}
     try:
         request = CodeRequest(
-            code="print('Hello World!')",
-            instructions="Change to be a function that adds two numbers. Do not add any comments and keep function as concise as possible"
+            code="#This function computes Matrix multiplication\ndef matrix_mul(a,b)",
+            instructions="Complete the code. Do not add any comments and keep function as concise as possible.",
         )
         generated_code = await generate_suggestion(request)
         return {"Response": generated_code}
