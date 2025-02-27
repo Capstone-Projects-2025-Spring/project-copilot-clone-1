@@ -1,46 +1,46 @@
-import unittest
-from db.db import Database
+import pytest
+from db.db import Database  
 
-class TestDatabase(unittest.TestCase):
-    def setUp(self):
-        # MongoDB URI
-        uri = "mongodb+srv://Kushi123:KushiTemple25@capcluster.lkmb9.mongodb.net/?retryWrites=true&w=majority"
-        
-        # Database and collection names
-        db_name = "test_user_code_db"
-        collection_name = "test_code_snippets"
-        
-        # Initialize the database connection
-        self.db = Database(uri, db_name, collection_name)
+def setup_db():
+    # MongoDB URI
+    uri = "mongodb+srv://Kushi123:KushiTemple25@capcluster.lkmb9.mongodb.net/?retryWrites=true&w=majority"
 
-    def test_send_and_retrieve_code_snippets(self):
-        user_id = "12345"
-        language = "Java"
-        code = "console.log('Hello, world!');"
+    # Database and collection names
+    db_name = "test_user_code_db"
+    collection_name = "test_code_snippets"
+    
+    # Initialize the database connection
+    db = Database(uri, db_name, collection_name)
+    return db
 
-        # Insert a code snippet
-        inserted_id = self.db.send_code_snippet(user_id, language, code)
-        self.assertIsNotNone(inserted_id.inserted_id, "Failed to insert document")
+def test_db_connection():
+    db = setup_db()
 
-        # Print the inserted data
-        # print("Inserted data:", {"userId": user_id, "language": language, "code": code})
+    assert db.client is not None
+    assert db.db is not None
+    assert db.collection is not None
+    
+    db.client.close()
 
-        # Retrieve code snippets 
-        snippets = self.db.retrieve_code_snippets(user_id)
-        self.assertGreater(len(snippets), 0, "No snippets retrieved")
+def test_send_and_retrieve_code_snippets():
+    db = setup_db()
 
-        # Print the retrieved data
-        # print("Retrieved data:", snippets)
+    user_id = "12345"
+    language = "Java"
+    code = "console.log('Hello, world!');"
 
-        # Verify the inserted code snippet is among the retrieved snippets
-        retrieved_snippet = snippets[0]
-        self.assertEqual(retrieved_snippet["userId"], user_id)
-        self.assertEqual(retrieved_snippet["language"], language)
-        self.assertEqual(retrieved_snippet["code"], code)
+    # Insert a code snippet
+    inserted_id = db.send_code_snippet(user_id, language, code)
+    assert inserted_id.inserted_id is not None, "Failed to insert document"
 
-    def tearDown(self):
-        # Close the MongoClient connection
-        self.db.client.close()
+    # Retrieve code snippets
+    snippets = db.retrieve_code_snippets(user_id)
+    assert len(snippets) > 0, "No snippets retrieved"
 
-if __name__ == "__main__":
-    unittest.main()
+    # Verify the inserted code snippet is among the retrieved snippets
+    retrieved_snippet = snippets[0]
+    assert retrieved_snippet["userId"] == user_id
+    assert retrieved_snippet["language"] == language
+    assert retrieved_snippet["code"] == code
+
+    db.client.close()
