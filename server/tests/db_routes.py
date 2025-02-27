@@ -15,7 +15,6 @@ def test_read_logs():
 def test_write_logs():
     body = CodeSnippet(
         _id=None, userId="", language="", code="", createdAt=datetime.today()
-    ).model_dump_json()
-    print(body)
+    ).model_dump() # fastapi expects a dict for json parameter 
     response = client.post("/logs", json=body)
     assert response.status_code == 200
