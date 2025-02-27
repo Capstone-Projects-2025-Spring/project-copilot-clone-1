@@ -1,4 +1,3 @@
-from db import router
 from db.models import CodeSnippet
 from fastapi.testclient import TestClient
 from datetime import datetime
