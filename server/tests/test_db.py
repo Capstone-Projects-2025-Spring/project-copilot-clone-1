@@ -1,6 +1,5 @@
 import unittest
-from pymongo import MongoClient
-from db import Database
+from db.db import Database
 
 class TestDatabase(unittest.TestCase):
     def setUp(self):
