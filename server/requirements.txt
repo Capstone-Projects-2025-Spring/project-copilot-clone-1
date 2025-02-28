@@ -1,4 +1,4 @@
 fastapi[standard]
-bson
 openai
 pymongo
+pytest
