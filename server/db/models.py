@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 from bson import ObjectId
 from datetime import datetime
 
@@ -8,3 +8,7 @@ class CodeSnippet(BaseModel):
     language: str
     code: str
     createdAt: datetime
+
+    @field_serializer('createdAt')
+    def serialize_dt(self, dt: datetime):
+        return dt.timestamp()
