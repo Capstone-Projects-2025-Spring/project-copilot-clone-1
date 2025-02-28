@@ -1,0 +1,33 @@
+name: Pull Request Educode Test
+
+on:
+  pull_request:
+    branches:
+      - main  # Change this to your default branch
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23  # Adjust this to your project's Node.js version
+      
+      - name: Install dependencies
+        run: 
+            cd educode && yarn
+      - name: Compile Test
+        run: 
+            cd educode && yarn run pretest
+
+      - run: cd educode && xvfb-run -a yarn run test
+        if: runner.os == 'Linux'
+      - run: cd educode && yarn run test
+        if: runner.os != 'Linux'
