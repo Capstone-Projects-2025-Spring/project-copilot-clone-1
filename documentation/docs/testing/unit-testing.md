@@ -10,7 +10,7 @@ All external classes should be stubbed using mock objects. -->
 
 
 ## Library Explanation: Each student is required to explain the unit testing library they have chosen. This explanation should include the reasons for selecting the library, its key features, and its suitability for the project.
-- Backend: Pytest was chosen for the backend because it integrates well with fastapi. It includes a TestClient for creating mock http requests
+- Backend: Pytest was chosen for the backend because it integrates well with fastapi. 
 
 ## Client
 ## Server
