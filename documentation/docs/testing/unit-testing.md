@@ -2,11 +2,16 @@
 sidebar_position: 1
 ---
 # Unit tests
-For each method, one or more test cases.
+<!-- For each method, one or more test cases.
 
 A test case consists of input parameter values and expected results.
 
-All external classes should be stubbed using mock objects.
+All external classes should be stubbed using mock objects. -->
+
+
+## Library Explanation: Each student is required to explain the unit testing library they have chosen. This explanation should include the reasons for selecting the library, its key features, and its suitability for the project.
+- Backend: Pytest was chosen for the backend because it integrates well with fastapi. It includes a TestClient for creating mock http requests
+
 ## Client
 ## Server
 ### Create a Prompt
@@ -31,3 +36,10 @@ All external classes should be stubbed using mock objects.
 </details>
 
 ## Database
+
+## Coverage Report: 
+<!-- Most unit testing software has the ability to export coverage reports in HTML. To add this to Docusaurus statically, you can place the exported HTML report in the static folder of your Docusaurus project. For automation, you can set up a continuous integration (CI) pipeline that runs your tests, generates the coverage report, and moves it to the static folder every time changes are made to the repository. This ensures your coverage report is always up to date. -->
+
+
+
+
