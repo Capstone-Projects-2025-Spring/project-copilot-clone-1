@@ -13,7 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const res = await fetch('http://localhost:8000/suggest');
 			const json = await res.json() as {Response: string};
 			const suggestion = json["Response"];
-			 const range = new vscode.Range(position.translate(0, -2), position);
+			const range = new vscode.Range(position.translate(0, -2), position);
 			// const text = document.getText(range);
 			console.log("provideInlineCompletionItems Called");
 			return {
