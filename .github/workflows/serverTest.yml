@@ -15,8 +15,9 @@ jobs:
             python-version: '3.13'
         - name: Setup venv
           run: | 
+            pip install --upgrade pip
             python -m venv ./educode_env \
             source ./educode_env/bin/activate \
-            echo $(pwd)
+            echo "PWD: $(pwd) VENV: $VIRTUAL_ENV"
 
     
