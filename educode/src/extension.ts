@@ -65,6 +65,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
 //requires user to login before accessing the extension
 async function requireGitHubAuthentication() {
+
+	console.log("Auth called");
     try {
         // Request a GitHub session
         const session = await vscode.authentication.getSession('github', ['read:user', 'user:email'], { createIfNone: true });
