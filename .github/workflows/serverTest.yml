@@ -16,6 +16,6 @@ jobs:
         - name: Setup venv
           run: | 
             pip install --upgrade pip \
-            echo "PWD: $(pwd)"
+            pwd
 
     
