@@ -15,8 +15,8 @@ jobs:
             python-version: '3.13'
         - name: Setup venv
           run: | 
-            python -m venv ./.educode \
-            source ./.educode/bin/activate \
+            python -m venv ./educode_env \
+            source ./educode_env/bin/activate \
             echo $(pwd)
 
     
