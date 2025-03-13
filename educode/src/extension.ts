@@ -72,6 +72,7 @@ async function requireGitHubAuthentication() {
         const session = await vscode.authentication.getSession('github', ['read:user', 'user:email'], { createIfNone: true });
 
         if (session) {
+			
             vscode.window.showInformationMessage(`Logged in as ${session.account.label}`);
             console.log('Access Token:', session.accessToken);
         }
