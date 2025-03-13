@@ -11,8 +11,8 @@ MODEL_NAME = os.environ.get("LLM_MODEL", "gpt-4-turbo")
 BASE_URL = os.environ.get("LLM_BASE_URL", "https://api.openai.com/v1/chat/completions")
 
 client = OpenAI(
-    api_key=API_KEY,
-    base_url=BASE_URL,
+    api_key="ollama",
+    base_url="http://localhost:11434/v1/",
 )
 
 async def generate_suggestion(request: CodeRequest):
