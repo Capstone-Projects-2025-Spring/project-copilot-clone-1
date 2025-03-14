@@ -12,8 +12,8 @@ classDiagram
     direction TB
 
     class User {
-        +userID: String
-        +username: String
+        +gitHubUsername: String
+        +gitHubPassword: String
         +preferences: JSON
         +getCodeSuggestions()
         +viewActivityLogs()
@@ -23,12 +23,13 @@ classDiagram
         +suggestCode(userID, userCode): String
         +logActivity(userID, action): void
         +fetchLogs(userID): JSON
+        +explainTopic(userID, prompt): String
     }
 
     class Database {
         +storeUserCode(userID, code): void
-        +storeLogs(userID, action): void
         +getLogs(userID): JSON
+        +storeLogs(userID, action): void
         +getSuggestions(context): String
     }
 
@@ -50,44 +51,41 @@ classDiagram
 
 
 
+
 ```
 ## Back End Diagram
 ```mermaid
 classDiagram
 
-    class User {
-        +String userId
-        +String username
-        +String email
-    }
-
     class CodeSession {
-        +String sessionId
-        +String userId
-        +String codeContent
-        +Date lastUpdated
+        +sessionId: String
+        +activeSession: Boolean
+        +gitHubUsername: String
+        +codeContent: Strign
+        +timeStamp: Date
     }
 
     class Suggestion {
-        +String suggestionId
-        +String sessionId
-        +String suggestedCode
-        +String explanation
-        +Date timestamp
+        +suggestionId: String
+        +sessionId: String
+        +suggestedCode: String
+        +explanation: String
+        +timeStamp: Date
     }
 
     class MongoDB {
-        +storeCodeSession(sessionId, userId, codeContent)
+        +storeCodeSession(sessionId, gitHubUsername, codeContent)
         +retrieveCodeSession(sessionId)
         +storeSuggestion(suggestionId, sessionId, suggestedCode, explanation)
     }
 
     class OpenAI_LLM {
-        +generateCodeSuggestion(codeContent) 
+        +generateCodeSuggestion(codeContent)
+        +generateTopicExplanation(prompt) 
     }
 
     class BackendAPI {
-        +saveCode(userId, codeContent)
+        +saveCode(gitHubUsername, codeContent)
         +fetchCode(sessionId)
         +requestSuggestion(sessionId)
     }
