@@ -1,10 +1,15 @@
-// The module 'vscode' contains the VS Code extensibility API
+// The module 'vscode' contains the VS Code extensibility APIg
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { suggestSnippet } from './suggest';
 // This method is called when your extension is activated
 // Extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
+
+
+
+	await requireGitHubAuthentication();
+
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "educode" is now active!');
@@ -23,6 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 			};
 		}
 	};
+
 	vscode.languages.registerInlineCompletionItemProvider({pattern: "**"}, suggestor);
 	// The command "Hello World" has been defined in the package.json file
 	// Implementation of the command is providedwith registerCommand
@@ -54,6 +60,25 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	context.subscriptions.push(disposable);
+}
+
+
+//requires user to login before accessing the extension
+async function requireGitHubAuthentication() {
+
+	console.log("Auth called");
+    try {
+        // Request a GitHub session
+        const session = await vscode.authentication.getSession('github', ['read:user', 'user:email'], { createIfNone: true });
+
+        if (session) {
+			
+            vscode.window.showInformationMessage(`Logged in as ${session.account.label}`);
+            console.log('Access Token:', session.accessToken);
+        }
+    } catch (error) {
+        vscode.window.showErrorMessage(`Authentication required: ${error}`);
+    }
 }
 
 // This method is called when extension is deactivated
