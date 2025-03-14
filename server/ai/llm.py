@@ -7,8 +7,8 @@ env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env'
 load_dotenv(dotenv_path=env_path)
 
 API_KEY = os.environ.get("LLM_API_KEY")
-MODEL_NAME = os.environ.get("LLM_MODEL", "gpt-4-turbo")
-BASE_URL = os.environ.get("LLM_BASE_URL", "https://api.openai.com/v1/chat/completions")
+MODEL_NAME = os.environ.get("LLM_MODEL", "llama3.2")
+BASE_URL = os.environ.get("LLM_BASE_URL")
 
 client = OpenAI(
     api_key=API_KEY,

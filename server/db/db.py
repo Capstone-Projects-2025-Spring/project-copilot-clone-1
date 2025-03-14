@@ -4,7 +4,7 @@ class Database:
     def __init__(self, uri, db_name, collection_name):
         try:
             # Initialize the MongoDB client
-            self.client = MongoClient(uri)
+            self.client = MongoClient(uri, tlsAllowInvalidCertificates=True)
             
             # Force a connection attempt by listing databases
             self.client.list_database_names()  # This will raise an exception if the connection fails
