@@ -30,7 +30,7 @@ export async function activate(context: vscode.ExtensionContext) {
 				body: JSON.stringify({code: document.getText(), instructions:""})});
 			console.log(res.status);
 			const json = await res.json() as {Response:string}
-			console.log(res.status, json);
+			console.log(res.status, json);//logs the status of the llm response and the code given ->
 			const suggestion = json["Response"];
 			const range = new vscode.Range(position.translate(0, 0), position.translate(0,suggestion.length));
 			// const text = document.getText(range);
@@ -46,7 +46,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			};
 		}
 	};
-
+	vscode.window.onDidDocu
 	vscode.languages.registerInlineCompletionItemProvider({pattern: "**"}, suggestor);
 	// The command "Hello World" has been defined in the package.json file
 	// Implementation of the command is providedwith registerCommand
