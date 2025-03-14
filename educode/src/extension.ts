@@ -46,7 +46,6 @@ export async function activate(context: vscode.ExtensionContext) {
 			};
 		}
 	};
-	vscode.window.onDidDocu
 	vscode.languages.registerInlineCompletionItemProvider({pattern: "**"}, suggestor);
 	// The command "Hello World" has been defined in the package.json file
 	// Implementation of the command is providedwith registerCommand
