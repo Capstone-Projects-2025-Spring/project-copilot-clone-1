@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { suggestSnippet } from './suggest';
+import { InlineCompletionItem, InlineCompletionList, ProviderResult } from 'vscode';
 // This method is called when your extension is activated
 // Extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
@@ -13,18 +14,35 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "educode" is now active!');
+	vscode.commands.registerCommand("logItemAccepted",(args)=>{console.log(args);},InlineCompletionItem);
+	const completionTracker = new Map<string, { position: vscode.Position, text: string }>();
 	const suggestor:vscode.InlineCompletionItemProvider = {
-		provideInlineCompletionItems: async(document, position, context, token) => {
-			const res = await fetch('http://localhost:8000/suggest');
-			const json = await res.json() as {Response: string};
+		provideInlineCompletionItems: async(document, position, context, token):Promise<InlineCompletionItem[] | InlineCompletionList> => {
+			const com = vscode.commands.executeCommand("logItemAccepted");
+			console.log(com);
+
+			console.log("provideInlineCompletionItems Called");
+			console.log(context,token)
+			const res = await fetch('http://localhost:8000/suggest', {method: 'POST',
+				headers: {
+				  'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({code: document.getText(), instructions:""})});
+			console.log(res.status);
+			const json = await res.json() as {Response:string}
+			console.log(res.status, json);
 			const suggestion = json["Response"];
-			const range = new vscode.Range(position.translate(0, -2), position);
+			const range = new vscode.Range(position.translate(0, 0), position.translate(0,suggestion.length));
 			// const text = document.getText(range);
 			console.log("provideInlineCompletionItems Called");
+			//placeholder for how we may recieve a list of suggestions
+			const suggestions = [suggestion, "print('Hello')"];
+			const itemList = suggestions.map(s=> {
+				            completionTracker.set(document.uri.toString(), { position, text:s });
+							return {insertText: s,command:{title:"logItemAccepted", command:"logItemAccepted"}} as InlineCompletionItem;
+						});
 			return {
-				items: [{
-					insertText: suggestion,
-				},{insertText: "print('Hello')"}]
+				items:itemList
 			};
 		}
 	};
