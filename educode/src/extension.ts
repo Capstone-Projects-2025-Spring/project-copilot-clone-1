@@ -11,43 +11,79 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	await requireGitHubAuthentication();
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
+    // Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "educode" is now active!');
-	vscode.commands.registerCommand("logItemAccepted",(args)=>{console.log(args);},InlineCompletionItem);
-	const completionTracker = new Map<string, { position: vscode.Position, text: string }>();
-	const suggestor:vscode.InlineCompletionItemProvider = {
+    const completionTracker = new Map<string, { position: vscode.Position, text: string, timestamp: string }>();
+    const suggestor: vscode.InlineCompletionItemProvider = {
 		provideInlineCompletionItems: async(document, position, context, token):Promise<InlineCompletionItem[] | InlineCompletionList> => {
-			const com = vscode.commands.executeCommand("logItemAccepted");
-			console.log(com);
-
 			console.log("provideInlineCompletionItems Called");
-			console.log(context,token)
 			const res = await fetch('http://localhost:8000/suggest', {method: 'POST',
 				headers: {
-				  'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({code: document.getText(), instructions:""})});
+					'Content-Type': 'application/json' },
+				body: JSON.stringify({code: document.getText(), instructions:""})
+			});
+				
 			console.log(res.status);
 			const json = await res.json() as {Response:string}
 			console.log(res.status, json);//logs the status of the llm response and the code given ->
 			const suggestion = json["Response"];
 			const range = new vscode.Range(position.translate(0, 0), position.translate(0,suggestion.length));
 			// const text = document.getText(range);
-			console.log("provideInlineCompletionItems Called");
-			//placeholder for how we may recieve a list of suggestions
-			const suggestions = [suggestion, "print('Hello')"];
-			const itemList = suggestions.map(s=> {
-				            completionTracker.set(document.uri.toString(), { position, text:s });
-							return {insertText: s,command:{title:"logItemAccepted", command:"logItemAccepted"}} as InlineCompletionItem;
-						});
-			return {
-				items:itemList
-			};
-		}
-	};
-	vscode.window.onDidDocu
-	vscode.languages.registerInlineCompletionItemProvider({pattern: "**"}, suggestor);
+			// console.log("provideInlineCompletionItems Called");
+            const timestamp = new Date().toISOString();
+			// Logs the suggestion presented to the user along with the timestamp
+            console.log(`Suggestion presented: ${suggestion} at ${timestamp}`);
+
+            // Log the suggestion as presented
+            logSuggestionEvent('Presented', suggestion, document.uri.toString(), position, timestamp);
+
+            // Track the most recent suggestion
+            completionTracker.set(document.uri.toString(), { position, text: suggestion, timestamp });
+
+			// Create an inline completion item with the suggestion
+            const itemList = [{
+                insertText: suggestion,
+                command: {
+                    title: "logItemAccepted",
+                    command: "logItemAccepted",
+                    arguments: [suggestion, document.uri.toString(), position, timestamp]
+                }
+            } as InlineCompletionItem];
+
+            return { items: itemList };
+        }
+    };
+
+    vscode.languages.registerInlineCompletionItemProvider({ pattern: "**" }, suggestor);
+
+    // Register command to log when an item is accepted
+    vscode.commands.registerCommand("logItemAccepted", (suggestion: string, uri: string, position: vscode.Position, timestamp: string) => {
+        const acceptanceTimestamp = new Date().toISOString();
+        console.log(`Suggestion accepted: ${suggestion} at ${acceptanceTimestamp}`);
+        logSuggestionEvent('Accepted', suggestion, uri, position, acceptanceTimestamp);
+        completionTracker.delete(uri); // Remove the tracked suggestion after acceptance
+    });
+
+    // Listen for text changes to detect rejected suggestions
+    context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const document = editor.document;
+            const trackedSuggestion = completionTracker.get(document.uri.toString());
+            if (trackedSuggestion) {
+                const text = document.getText();
+                // Check if the suggestion was not accepted
+                if (!text.includes(trackedSuggestion.text)) {
+                    const rejectionTimestamp = new Date().toISOString();
+                    console.log(`Suggestion rejected: ${trackedSuggestion.text} at ${rejectionTimestamp}`);
+                    logSuggestionEvent('Rejected', trackedSuggestion.text, document.uri.toString(), trackedSuggestion.position, rejectionTimestamp);
+                    completionTracker.delete(document.uri.toString());
+                }
+            }
+        }
+    }));
+
 	// The command "Hello World" has been defined in the package.json file
 	// Implementation of the command is providedwith registerCommand
 	// The commandId parameter must match the command field in package.json
@@ -57,27 +93,71 @@ export async function activate(context: vscode.ExtensionContext) {
 		
 		vscode.window.showInformationMessage('Hello World from EduCode!');
 		
-		console.log("suggestor registered");
+		// console.log("suggestor registered");
 	
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
 			const document = editor.document;
 			const text = document.getText();
-			//Post log of file content, file name and cursor position to the fastAPI server
-			const postRes = await fetch('http://localhost:8000/logs', {method: 'POST', body: JSON.stringify({code:text, fileName: document.fileName, position: editor.selection.active}) });
-			const postBody = await postRes.json() as {detail:{response: string}[]};
-			console.log(postBody);
-			//log response from the fastAPI server
-			console.log(postRes.status);
-			// suggestSnippet(editor,suggestion, editor.selection.active);
+            await logFileContent(text, document.fileName, editor.selection.active);
+        } else {
 			// log to test if the editor is active
-			console.log(document.fileName);
-		}else{
-			console.log("No active editor");
-		}
-	});
+            console.log("No active editor");
+        }
+    });
 
-	context.subscriptions.push(disposable);
+    context.subscriptions.push(disposable);
+}
+
+// Function to log file content
+async function logFileContent(code: string, fileName: string, position: vscode.Position) {
+    const timestamp = new Date().toISOString();
+	//Post log of file content, file name and cursor position to the fastAPI server
+    const postRes = await fetch('http://localhost:8000/logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, fileName, position, timestamp })
+    });
+    console.log(await postRes.json());
+}
+
+// Function to log suggestion events (presented, accepted, rejected)
+async function logSuggestionEvent(eventType: string, suggestion: string, uri: string, position: vscode.Position, timestamp: string) {
+    const session = await vscode.authentication.getSession('github', ['read:user', 'user:email'], { createIfNone: false });
+    if (session) {
+        const userId = session.account.label;
+        const logData = {
+            userId,
+            eventType,
+            suggestion,
+            uri,
+            position: {
+                line: position.line,
+                character: position.character
+            },
+            timestamp
+        };
+
+        // Send log data to the server
+        try {
+            const postRes = await fetch('http://localhost:8000/suggestion-logs', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(logData)
+            });
+            if (postRes.ok) {
+                console.log(`Suggestion log sent (${eventType}):`, postRes.status);
+            } else {
+                console.error(`Failed to send suggestion log (${eventType}):`, postRes.status, await postRes.text());
+            }
+        } catch (error) {
+            console.error('Failed to send suggestion log:', error);
+        }
+    } else {
+        console.log("User not authenticated for suggestion logging");
+    }
 }
 
 
