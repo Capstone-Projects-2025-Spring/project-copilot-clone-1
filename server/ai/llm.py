@@ -31,12 +31,13 @@ async def generate_suggestion(request: CodeRequest):
         response = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
-                {"role": "developer", "content": "You are an AI code assistant. Follow user instructions carefully."},
+                {"role": "developer", "content": "You are an AI code assistant. Given the code sample, give the remaining piece to finish the code, do not include code already written"},
                 {"role": "user", "content": f"Code:\n{request.code}\n\nInstructions:\n{request.instructions}"}
             ],
             temperature=0.2,
         )
-        generated_code = response.choices[0].message.content;
+        generated_code = response.choices[0].message.content
+        print(generated_code)
         return generated_code
     except Exception as e:
         raise Exception(f"Error generating suggestion: {str(e)}")

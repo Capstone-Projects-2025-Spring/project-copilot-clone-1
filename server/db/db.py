@@ -30,6 +30,20 @@ class Database:
         print(result)
         return result
 
+    def send_suggestion_log(self, user_id, event_type, suggestion, uri, position, timestamp):
+        data = {
+            "userId": user_id,
+            "eventType": event_type,
+            "suggestion": suggestion,
+            "uri": uri,
+            "position": position,
+            "timestamp": timestamp
+        }
+
+        result = self.collection.insert_one(data)
+        print(result)
+        return result
+
     def retrieve_code_snippets(self, user_id, language=None):
         query = {}
         if user_id:
