@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import axios from 'axios';
+
 import { suggestSnippet } from './suggest';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -9,7 +9,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	const suggestor: vscode.InlineCompletionItemProvider = {
 		provideInlineCompletionItems: async (document, position, context, token) => {
-			const res = await fetch('http://localhost:8000/suggest');
+			const res = await fetch('http://localhost:8000/storeUser');
 			const json = await res.json() as { Response: string };
 			const suggestion = json["Response"];
 			const range = new vscode.Range(position.translate(0, -2), position);
@@ -60,7 +60,7 @@ async function requireGitHubAuthentication() {
 
 		if (session) {
 			const userData = {
-				gitHubUsername: session.account.id,
+				gitHubUsername: session.account.label,
 				username: session.account.label,
 				accessToken: session.accessToken
 			};
@@ -80,13 +80,33 @@ async function requireGitHubAuthentication() {
 }
 
 // Function to check if the user exists in MongoDB and add them if they don't
-async function registerUserInMongoDB(userData: { gitHubUsername: string, username: string, accessToken: string }) {
-	try {
-		const response = await axios.post('http://localhost:8000/api/users', userData);
-		vscode.window.showInformationMessage(response.data.message || 'User added successfully.');
-	} catch (error) {
+async function registerUserInMongoDB(userData: { gitHubUsername: string | number, username: string, accessToken: string }) {
+    try {
+        // const response = await fetch('http://localhost:8000/register', {
+		   const response = await fetch('http://localhost:8000/storeUser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+
+
+        });
+
+        const responseText = await response.text(); // Get response body as text
+		console.log("Sending data:", userData);
+		//console.log(responseText)
+
+        if (response.ok) {
+            vscode.window.showInformationMessage(`User added successfully as`) // {session.account.label}`);
+        } else {
+
+			//vscode.window.showInformationMessage(data) // {session.account.label}`);
+            vscode.window.showErrorMessage(`Failed to add user:`) // ${data.detail || 'Unknown error'}`);
+        }
+    } catch (error) {
 		vscode.window.showErrorMessage(`Failed to add user: ${error}`);
-	}
+    }
 }
 
 // Deactivate function

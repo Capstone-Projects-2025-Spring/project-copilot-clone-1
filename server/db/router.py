@@ -3,6 +3,7 @@ from db.models import CodeSnippet
 from db.db import Database
 from dotenv import load_dotenv
 import os
+from db.db import User
 
 env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env')
 load_dotenv(dotenv_path=env_path)
@@ -18,6 +19,12 @@ database = Database(uri=URI, db_name=DB_NAME, collection_name=COLLECTION_NAME)
 def log_data(data: CodeSnippet):
     database.send_code_snippet(data.userId, data.language, data.code)
     return [{"response": "Storing some data", "data": data, "created": data.createdAt}]
+
+@router.post('/storeUser', status_code=200)
+def log_data(data: User):
+    database.register_user(data.gitHubUsername, data.username, data.accessToken)
+    return [{"response": "Storing some data", "data": data, "created": data.createdAt}]
+
 
 @router.get('/logs', status_code=200)
 def read_logs():
