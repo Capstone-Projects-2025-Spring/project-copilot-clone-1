@@ -1,9 +1,8 @@
 from fastapi import APIRouter
-from db.models import CodeSnippet
+from db.models import CodeSnippet,User
 from db.db import Database
 from dotenv import load_dotenv
 import os
-from db.db import User
 
 env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env')
 load_dotenv(dotenv_path=env_path)
@@ -22,8 +21,16 @@ def log_data(data: CodeSnippet):
 
 @router.post('/storeUser', status_code=200)
 def log_data(data: User):
-    database.register_user(data.gitHubUsername, data.username, data.accessToken)
-    return [{"response": "Storing some data", "data": data, "created": data.createdAt}]
+    """
+        Data passed has the vscode created accountID and githubUsername
+        Response is {message:str, status:int}
+        Status:
+            - 200: User document added to DB
+            - 204: User already exists in DB
+            - 500: error trying to fetch or post user
+    """
+    res = database.register_user(data.gitHubUsername, data.accountId)
+    return res
 
 
 @router.get('/logs', status_code=200)

@@ -61,18 +61,17 @@ async function requireGitHubAuthentication() {
 		if (session) {
 			const userData = {
 				gitHubUsername: session.account.label,
-				username: session.account.label,
-				accessToken: session.accessToken
+				accountId: session.account.id,
 			};
+            console.log(userData);
 
-			vscode.window.showInformationMessage(`Logged in as ${session.account.label}`);
-			vscode.window.showInformationMessage(`Welcome to EduCode! ${userData.gitHubUsername}`);
+			// vscode.window.showInformationMessage(`Logged in as ${session.account.label}`);
+			vscode.window.showInformationMessage(`Welcome to EduCode, ${userData.gitHubUsername}!`);
 			console.log('Access Token:', session.accessToken);
 
 			// Register user in MongoDB after successful authentication
 			await registerUserInMongoDB(userData);
 
-			console.log('RAN REGISTER IN MONGODB CODE!');
 		}
 	} catch (error) {
 		vscode.window.showErrorMessage(`Authentication required: ${error}`);
@@ -80,9 +79,8 @@ async function requireGitHubAuthentication() {
 }
 
 // Function to check if the user exists in MongoDB and add them if they don't
-async function registerUserInMongoDB(userData: { gitHubUsername: string | number, username: string, accessToken: string }) {
+async function registerUserInMongoDB(userData: { gitHubUsername: string , accountId: string }) {
     try {
-        // const response = await fetch('http://localhost:8000/register', {
 		   const response = await fetch('http://localhost:8000/storeUser', {
             method: 'POST',
             headers: {
@@ -92,17 +90,14 @@ async function registerUserInMongoDB(userData: { gitHubUsername: string | number
 
 
         });
-
-        const responseText = await response.text(); // Get response body as text
-		console.log("Sending data:", userData);
-		//console.log(responseText)
-
-        if (response.ok) {
-            vscode.window.showInformationMessage(`User added successfully as`) // {session.account.label}`);
-        } else {
-
+        
+        // might want to console log this stuff instead of showing a window messagebc users dont care if their user got stored
+    
+        if (response.status === 200) {
+            vscode.window.showInformationMessage(`User added successfully as ${userData.accountId}`) // {session.account.label}`);
+        }else {
 			//vscode.window.showInformationMessage(data) // {session.account.label}`);
-            vscode.window.showErrorMessage(`Failed to add user:`) // ${data.detail || 'Unknown error'}`);
+            vscode.window.showErrorMessage(`Failed to add user:`); // ${data.detail || 'Unknown error'}`);
         }
     } catch (error) {
 		vscode.window.showErrorMessage(`Failed to add user: ${error}`);

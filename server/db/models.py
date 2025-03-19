@@ -12,3 +12,7 @@ class CodeSnippet(BaseModel):
     @field_serializer('createdAt')
     def serialize_dt(self, dt: datetime):
         return dt.timestamp()
+
+class User(BaseModel):
+    gitHubUsername: str
+    accountId:str
