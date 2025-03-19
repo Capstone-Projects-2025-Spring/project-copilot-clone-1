@@ -20,7 +20,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "educode" is now active!');
     const completionTracker = new Map<string, { position: vscode.Position, text: string, timestamp: string }>();
-    let lastLoggedText = ''; // Track the last logged text to avoid duplicate logs
 
     // Function to start interval logging
     const startIntervalLogging = (editor: vscode.TextEditor) => {
@@ -28,34 +27,31 @@ export async function activate(context: vscode.ExtensionContext) {
             clearInterval(loggingTimer); // Clear existing timer if any
         }
 
-        let lastCursorPosition: vscode.Position | null = null; // Track the last cursor position
-        let lastLineCount: number = editor.document.lineCount; // Track the last line count
+        let lastLineCount: number = editor.document.lineCount;     // Track the last line count
+        let lastCursorLine: number = editor.selection.active.line; // Track the last cursor line
+        let lastLoggedText: string = editor.document.getText();    // Track the last logged text
 
         loggingTimer = setInterval(async () => {
             const document = editor.document;
             const text = document.getText();
+            // Get the current line number where the cursor is positioned
+            const cursorLine = editor.selection.active.line;  
 
-            // Log only if the text has changed since the last log
-            if (text !== lastLoggedText) {
-                lastLoggedText = text;
+            // Check if the cursor has moved to a new line compared to the last known position
+            const movedToNewLine = cursorLine != lastCursorLine;
 
-                // Get the current cursor position
-                const cursorPosition = editor.selection.active;
-                // Check if the cursor is at the start of a line (column 0)
-                const cursorEndsAt0 = cursorPosition.character === 0;
-                // Check if a new line has been added
-                const newLineAdded = document.lineCount > lastLineCount;
-
+            // Log only if the cursor has moved to a new line and the text has changed
+            if (movedToNewLine && text != lastLoggedText) {
+                // Call the logUserInput function to log the current text and the file name
                 await logUserInput(text, document.fileName);
+                
+                console.log(`Cursor moved to a new line: ${cursorLine}`);
+                console.log(`New line added: ${document.lineCount > lastLineCount}`);
 
-                // Log cursor and new line details locally (not sent to the backend)
-                console.log(`Cursor ends at 0: ${cursorEndsAt0}`);
-                console.log(`New line added: ${newLineAdded}`);
-
-                // Update the last cursor position and line count
-                lastCursorPosition = cursorPosition;
+                // Update the last cursor line, line count, and logged text
+                lastCursorLine = cursorLine;
                 lastLineCount = document.lineCount;
-
+                lastLoggedText = text;
             }
         }, LOGGING_INTERVAL);
     };
