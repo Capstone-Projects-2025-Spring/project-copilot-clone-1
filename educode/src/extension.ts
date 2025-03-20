@@ -1,9 +1,15 @@
-// The module 'vscode' contains the VS Code extensibility APIg
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { suggestSnippet } from './suggest';
+import * as path from 'path';
 import { InlineCompletionItem, InlineCompletionList, ProviderResult } from 'vscode';
 import getWebViewContent from './webViewHTML';
+
+
+// Interval for logging user input (e.g., every 5 seconds)
+const LOGGING_INTERVAL = 5000; // 5 seconds
+
+let loggingTimer: NodeJS.Timeout | null = null; // Timer for interval logging
+
 // This method is called when your extension is activated
 // Extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
@@ -16,6 +22,55 @@ export async function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "educode" is now active!');
     const completionTracker = new Map<string, { position: vscode.Position, text: string, timestamp: string }>();
+
+    // Function to start interval logging
+    const startIntervalLogging = (editor: vscode.TextEditor) => {
+        if (loggingTimer) {
+            clearInterval(loggingTimer); // Clear existing timer if any
+        }
+
+        let lastLineCount: number = editor.document.lineCount;     // Track the last line count
+        let lastCursorLine: number = editor.selection.active.line; // Track the last cursor line
+        let lastLoggedText: string = editor.document.getText();    // Track the last logged text
+
+        loggingTimer = setInterval(async () => {
+            const document = editor.document;
+            const text = document.getText();
+            // Get the current line number where the cursor is positioned
+            const cursorLine = editor.selection.active.line;  
+
+            // Check if the cursor has moved to a new line compared to the last known position
+            const movedToNewLine = cursorLine != lastCursorLine;
+
+            // Log only if the cursor has moved to a new line and the text has changed
+            if (movedToNewLine && text != lastLoggedText) {
+                // Call the logUserInput function to log the current text and the file name
+                await logUserInput(text, document.fileName);
+                
+                console.log(`Cursor moved to a new line: ${cursorLine}`);
+                console.log(`New line added: ${document.lineCount > lastLineCount}`);
+
+                // Update the last cursor line, line count, and logged text
+                lastCursorLine = cursorLine;
+                lastLineCount = document.lineCount;
+                lastLoggedText = text;
+            }
+        }, LOGGING_INTERVAL);
+    };
+
+    // Listen for active text editor changes
+    context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
+        if (editor) {
+            startIntervalLogging(editor); // Start interval logging when a new editor is activated
+        }
+    }));
+
+    // Start interval logging if there's already an active editor
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+        startIntervalLogging(editor);
+    }
+
     const suggestor: vscode.InlineCompletionItemProvider = {
 		provideInlineCompletionItems: async(document, position, context, token):Promise<InlineCompletionItem[] | InlineCompletionList> => {
 			console.log("provideInlineCompletionItems Called");
@@ -129,9 +184,44 @@ export async function activate(context: vscode.ExtensionContext) {
 }
     
 
+// Function to log user input at intervals
+async function logUserInput(code: string, filePath: string) {
+    const session = await vscode.authentication.getSession('github', ['read:user', 'user:email'], { createIfNone: false });
+    if (session) {
+        const userId = session.account.label;
+        const timestamp = new Date().toISOString();
+        const fileName = path.basename(filePath);
+        const logData = {
+            userId,
+            code,
+            fileName,
+            timestamp
+        };
+
+        // Send log data to the server
+        try {
+            const postRes = await fetch('http://localhost:8000/user-input-logs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(logData)
+            });
+            if (postRes.ok) {
+                console.log(`User input log sent:`, postRes.status);
+            } else {
+                console.error(`Failed to send user input log:`, postRes.status, await postRes.text());
+            }
+        } catch (error) {
+            console.error('Failed to send user input log:', error);
+        }
+    } else {
+        console.log("User not authenticated for user input logging");
+    }
+}
+
 // Function to log file content
-async function logFileContent(code: string, fileName: string, position: vscode.Position) {
+async function logFileContent(code: string, filePath: string, position: vscode.Position) {
     const timestamp = new Date().toISOString();
+    const fileName = path.basename(filePath);
 	//Post log of file content, file name and cursor position to the fastAPI server
     const postRes = await fetch('http://localhost:8000/logs', {
         method: 'POST',
@@ -146,11 +236,13 @@ async function logSuggestionEvent(eventType: string, suggestion: string, uri: st
     const session = await vscode.authentication.getSession('github', ['read:user', 'user:email'], { createIfNone: false });
     if (session) {
         const userId = session.account.label;
+        const filePath = uri.replace('file://', '');
+        const fileName = path.basename(filePath);
         const logData = {
             userId,
             eventType,
             suggestion,
-            uri,
+            fileName,
             position: {
                 line: position.line,
                 character: position.character
@@ -200,5 +292,9 @@ async function requireGitHubAuthentication() {
 }
 
 // This method is called when extension is deactivated
-export function deactivate() {}
-
+export function deactivate() {
+    // Clear the logging timer when the extension is deactivated
+    if (loggingTimer) {
+        clearInterval(loggingTimer);
+    }
+}

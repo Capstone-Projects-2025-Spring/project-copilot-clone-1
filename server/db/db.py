@@ -12,6 +12,7 @@ class Database:
             # Connect to the specified database
             self.db = self.client[db_name]
             self.collection = self.db[collection_name]
+            self.interval_collection = self.db["interval_logging"]  # New collection for interval logs
             
             print(f"Successfully connected to MongoDB database: {db_name}")
     
@@ -30,17 +31,29 @@ class Database:
         print(result)
         return result
 
-    def send_suggestion_log(self, user_id, event_type, suggestion, uri, position, timestamp):
+    def send_suggestion_log(self, user_id, event_type, suggestion, fileName, position, timestamp):
         data = {
             "userId": user_id,
             "eventType": event_type,
             "suggestion": suggestion,
-            "uri": uri,
+            "fileName": fileName,
             "position": position,
             "timestamp": timestamp
         }
 
         result = self.collection.insert_one(data)
+        print(result)
+        return result
+
+    def send_interval_log(self, user_id, code, fileName, timestamp):
+        data = {
+            "userId": user_id,
+            "code": code,
+            "fileName": fileName,
+            "timestamp": timestamp
+        }
+
+        result = self.interval_collection.insert_one(data)
         print(result)
         return result
 
