@@ -1,1 +1,2 @@
 A basic VSCode extension for emulating Github copilot and implementing rich logging features
+To use the production version, go to the extension tab on the sidebar, and click the three dots on the top. Select install from VSIX and choose the educode vsix file from the repository
