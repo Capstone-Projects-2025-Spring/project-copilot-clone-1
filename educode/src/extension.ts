@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import { suggestSnippet } from './suggest';
 import * as path from 'path';
 import { InlineCompletionItem, InlineCompletionList, ProviderResult } from 'vscode';
+import getWebViewContent from './webViewHTML';
+
 
 // Interval for logging user input (e.g., every 5 seconds)
 const LOGGING_INTERVAL = 5000; // 5 seconds
@@ -72,10 +74,11 @@ export async function activate(context: vscode.ExtensionContext) {
     const suggestor: vscode.InlineCompletionItemProvider = {
 		provideInlineCompletionItems: async(document, position, context, token):Promise<InlineCompletionItem[] | InlineCompletionList> => {
 			console.log("provideInlineCompletionItems Called");
+			console.log(position);
 			const res = await fetch('http://localhost:8000/suggest', {method: 'POST',
 				headers: {
 					'Content-Type': 'application/json' },
-				body: JSON.stringify({code: document.getText(), instructions:""})
+				body: JSON.stringify({code: document.getText(), instructions:"You are an AI code assistant. Given the code sample, return the remaining piece to finish the code, without rewriting existing code, or adding explanation"})
 			});
 				
 			console.log(res.status);
@@ -141,27 +144,45 @@ export async function activate(context: vscode.ExtensionContext) {
 	// The command "Hello World" has been defined in the package.json file
 	// Implementation of the command is providedwith registerCommand
 	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('educode.helloWorld', async () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		
-		vscode.window.showInformationMessage('Hello World from EduCode!');
-		
-		// console.log("suggestor registered");
-	
-		const editor = vscode.window.activeTextEditor;
-		if (editor) {
-			const document = editor.document;
-			const text = document.getText();
-            await logFileContent(text, document.fileName, editor.selection.active);
-        } else {
-			// log to test if the editor is active
-            console.log("No active editor");
-        }
+	const disposable = vscode.commands.registerCommand('educode.askQuestion', async () => {
+        console.log("askQuestion called");
+        const panel = vscode.window.createWebviewPanel(
+            'questionInput',
+            'Ask a Question',
+            {viewColumn:-1,preserveFocus:true},
+            { enableScripts: true }
+        );
+
+        panel.webview.html = getWebViewContent();
+
+        panel.webview.onDidReceiveMessage(async(message) => {
+            // vscode.window.showInformationMessage(`message was ${message.command}, ${message.text}`);
+            console.log(`message Command:${message.command}, text:${message.text}`);
+            if (message.command === "ask"){
+                try{
+                    const res = await fetch('http://localhost:8000/askEducode',{method:"POST",headers: {
+                        'Content-Type': 'application/json' }, body:JSON.stringify({question: message.text})});
+                    console.log(res);
+                    /**
+                    * @todo Make the data output streamable 
+                    * */ 
+                    const data = await res.json() as {output:string};
+                    // console.log(data);
+                    panel.webview.postMessage({command:'response', text: data.output});
+                }catch(e){
+                    panel.webview.postMessage({ command: 'response', text: 'Error: Unable to fetch response' });
+                }
+            }
+            if (message.command === "log"){
+                console.log(message.text)
+            }
+
+        }, undefined, context.subscriptions);
     });
 
     context.subscriptions.push(disposable);
 }
+    
 
 // Function to log user input at intervals
 async function logUserInput(code: string, filePath: string) {
