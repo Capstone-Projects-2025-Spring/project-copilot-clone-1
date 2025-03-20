@@ -275,19 +275,50 @@ async function logSuggestionEvent(eventType: string, suggestion: string, uri: st
 
 //requires user to login before accessing the extension
 async function requireGitHubAuthentication() {
+	console.log("Running authentication process for the user");
+	try {
+		const session = await vscode.authentication.getSession('github', ['read:user', 'user:email'], { createIfNone: true });
 
-	console.log("Auth called");
+		if (session) {
+			const userData = {
+				gitHubUsername: session.account.label,
+				accountId: session.account.id,
+
+			};
+            console.log(userData);
+
+			// vscode.window.showInformationMessage(`Logged in as ${session.account.label}`);
+			vscode.window.showInformationMessage(`Welcome to EduCode, ${userData.gitHubUsername}!`);
+			console.log('Access Token:', session.accessToken);
+
+			// Register user in MongoDB after successful authentication
+			await registerUserInMongoDB(userData);
+
+
+		}
+	} catch (error) {
+		vscode.window.showErrorMessage(`Authentication required: ${error}`);
+	}
+}
+
+async function registerUserInMongoDB(userData: { gitHubUsername: string , accountId: string }) {
     try {
-        // Request a GitHub session
-        const session = await vscode.authentication.getSession('github', ['read:user', 'user:email'], { createIfNone: true });
-
-        if (session) {
-			
-            vscode.window.showInformationMessage(`Logged in as ${session.account.label}`);
-            console.log('Access Token:', session.accessToken);
+		   const response = await fetch('http://localhost:8000/storeUser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        });
+        // might want to console log this stuff instead of showing a window messagebc users dont care if their user got stored
+        if (response.status === 200) {
+            console.log(`User added successfully as ${userData.accountId}`); // {session.account.label}`);
+        }else {
+			//vscode.window.showInformationMessage(data) // {session.account.label}`);
+            console.log(`Failed to add user:`); // ${data.detail || 'Unknown error'}`);
         }
     } catch (error) {
-        vscode.window.showErrorMessage(`Authentication required: ${error}`);
+		console.log(`Failed to add user: ${error}`);
     }
 }
 
