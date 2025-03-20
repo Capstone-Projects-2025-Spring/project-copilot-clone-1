@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from db.models import CodeSnippet, SuggestionLog, UserInputLog
+from db.models import CodeSnippet, SuggestionLog, User, UserInputLog
 from db.db import Database
 from dotenv import load_dotenv
 import os
@@ -46,3 +46,16 @@ def log_user_input(data: UserInputLog):
         timestamp=data.timestamp
     )
     return {"response": "User input log stored", "data": data, "inserted_id": str(result.inserted_id)}
+
+@router.post('/storeUser', status_code=200)
+def add_user_mongodb(data: User):
+    """
+        Data passed has the vscode created accountID and githubUsername
+        Response is {message:str, status:int}
+        Status:
+            - 200: User document added to DB
+            - 204: User already exists in DB
+            - 500: error trying to fetch or post user
+    """
+    res = database.register_user(data.gitHubUsername, data.accountId)
+    return res

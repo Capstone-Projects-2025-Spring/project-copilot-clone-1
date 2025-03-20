@@ -26,3 +26,7 @@ class UserInputLog(BaseModel):
     code: str
     fileName: str
     timestamp: str
+
+class User(BaseModel):
+    gitHubUsername: str
+    accountId:str
