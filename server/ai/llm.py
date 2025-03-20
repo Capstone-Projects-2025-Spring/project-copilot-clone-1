@@ -31,7 +31,7 @@ async def generate_suggestion(request: CodeRequest):
         response = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
-                {"role": "developer", "content": "You are an AI code assistant. Given the code sample, give the remaining piece to finish the code, do not include code already written"},
+                {"role": "developer", "content": "You are an AI code assistant. Given the code sample, return the remaining piece to finish the code, without reqriting existing code, or adding explanation"},
                 {"role": "user", "content": f"Code:\n{request.code}\n\nInstructions:\n{request.instructions}"}
             ],
             temperature=0.2,
@@ -42,3 +42,18 @@ async def generate_suggestion(request: CodeRequest):
     except Exception as e:
         raise Exception(f"Error generating suggestion: {str(e)}")
 
+async def explainConcept(question:str)-> str:
+    try:
+        response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {"role": "assistant", "content": "You are an AI coding assistant, explain the concept behind the question. Respond in well-formed markdown"},
+                {"role": "user", "content": f"Question: {question}"}
+            ],
+            temperature=0.2,
+        )
+        generated_code = response.choices[0].message.content
+        print(generated_code)
+        return generated_code
+    except Exception as e:
+        raise Exception(f"Error generating concept explanation: {str(e)}")
