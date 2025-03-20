@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from db.models import CodeSnippet, SuggestionLog
+from db.models import CodeSnippet, SuggestionLog, UserInputLog
 from db.db import Database
 from dotenv import load_dotenv
 import os
@@ -30,8 +30,19 @@ def log_suggestion(data: SuggestionLog):
         user_id=data.userId,
         event_type=data.eventType,
         suggestion=data.suggestion,
-        uri=data.uri,
+        fileName=data.fileName,
         position=data.position,
         timestamp=data.timestamp
     )
     return {"response": "Suggestion log stored", "data": data, "inserted_id": str(result.inserted_id)}
+
+@router.post('/user-input-logs', status_code=200)
+def log_user_input(data: UserInputLog):
+    # Save the user input log to the database
+    result = database.send_interval_log(
+        user_id=data.userId,
+        code=data.code,
+        fileName=data.fileName,
+        timestamp=data.timestamp
+    )
+    return {"response": "User input log stored", "data": data, "inserted_id": str(result.inserted_id)}

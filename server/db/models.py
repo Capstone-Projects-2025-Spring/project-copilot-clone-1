@@ -17,6 +17,12 @@ class SuggestionLog(BaseModel):
     userId: str
     eventType: str  # "Presented", "Accepted", or "Rejected"
     suggestion: str
-    uri: str
+    fileName: str
     position: dict  # Cursor position
+    timestamp: str
+
+class UserInputLog(BaseModel):
+    userId: str
+    code: str
+    fileName: str
     timestamp: str
