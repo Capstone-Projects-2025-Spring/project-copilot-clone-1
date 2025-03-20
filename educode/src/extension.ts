@@ -285,6 +285,7 @@ async function requireGitHubAuthentication() {
 			};
             console.log(userData);
 
+			// vscode.window.showInformationMessage(`Logged in as ${session.account.label}`);
 			vscode.window.showInformationMessage(`Welcome to EduCode, ${userData.gitHubUsername}!`);
 			console.log('Access Token:', session.accessToken);
 
@@ -313,13 +314,13 @@ async function registerUserInMongoDB(userData: { gitHubUsername: string , accoun
         // might want to console log this stuff instead of showing a window messagebc users dont care if their user got stored
     
         if (response.status === 200) {
-            console.log(`User added successfully as ${userData.accountId}`) // {session.account.label}`);
+            vscode.window.showInformationMessage(`User added successfully as ${userData.accountId}`) // {session.account.label}`);
         }else {
 			//vscode.window.showInformationMessage(data) // {session.account.label}`);
-            console.log(`Failed to add user:`); // ${data.detail || 'Unknown error'}`);
+            vscode.window.showErrorMessage(`Failed to add user:`); // ${data.detail || 'Unknown error'}`);
         }
     } catch (error) {
-		console.log(`Failed to add user: ${error}`);
+		vscode.window.showErrorMessage(`Failed to add user: ${error}`);
     }
 }
 

@@ -63,3 +63,30 @@ class Database:
         except Exception as e:
             print(f"Failed to Fetch/Post User: {e}")
 
+
+# MongoDB Connection
+# db = Database(
+#     uri="mongodb+srv://Schetroma1:Temple25@capcluster.lkmb9.mongodb.net/?retryWrites=true&w=majority",
+#     db_name="user_database",
+#     collection_name="users"
+# )
+
+# Define request model for user registration
+
+
+# # API endpoint to check and add user
+# @app.post("/storeUser")
+# async def register_user(user: User):
+#     result = db.register_user(user.gitHubUsername, user.username, user.accessToken)
+#     return result
+
+# # API endpoint to submit code snippet
+# class CodeSnippet(BaseModel):
+#     userId: str
+#     language: str
+#     code: str
+
+# @app.post("/codeStorage")
+# async def submit_code(snippet: CodeSnippet):
+#     inserted_id = db.send_code_snippet(snippet.userId, snippet.language, snippet.code)
+#     return {"message": "Code snippet added successfully", "inserted_id": str(inserted_id)}
