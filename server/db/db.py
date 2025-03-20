@@ -16,6 +16,7 @@ class Database:
             self.db = self.client[db_name]
             self.collection = self.db[collection_name]
             self.users = self.db["users"]
+            self.interval_collection = self.db["interval_logging"]  # New collection for interval logs
             
             print(f"Successfully connected to MongoDB database: {db_name}")
 
@@ -31,11 +32,9 @@ class Database:
             "code": code,
         }
         result = self.collection.insert_one(data)
-        return result.inserted_id
-    
+        print(result)
+        return result
 
-
-    # Retrieve code snippets from MongoDB
     def retrieve_code_snippets(self, user_id, language=None):
         query = {"userId": user_id}
         if language:

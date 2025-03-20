@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from .llm import generate_suggestion
-from .models import CodeRequest, SuggestionResponse
+from .llm import explainConcept, generate_suggestion
+from .models import CodeRequest, ExplanationRequest, ExplanationResponse, SuggestionResponse
 
 router = APIRouter()
 
@@ -34,3 +34,12 @@ async def get_suggestion(request: CodeRequest) -> dict:
         return {"Response": generated_code}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@router.post('/askEducode', status_code=200, response_model=ExplanationResponse)
+async def get_explanation(request:ExplanationRequest) -> dict:
+    try:
+      output = await explainConcept(request.question)
+      return {"output":output, "status":200}
+    except Exception as e:
+      raise HTTPException(status_code=500, detail=str(e))

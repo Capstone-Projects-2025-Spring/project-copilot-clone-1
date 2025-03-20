@@ -16,3 +16,17 @@ class CodeSnippet(BaseModel):
 class User(BaseModel):
     gitHubUsername: str
     accountId:str
+
+class SuggestionLog(BaseModel):
+    userId: str
+    eventType: str  # "Presented", "Accepted", or "Rejected"
+    suggestion: str
+    fileName: str
+    position: dict  # Cursor position
+    timestamp: str
+
+class UserInputLog(BaseModel):
+    userId: str
+    code: str
+    fileName: str
+    timestamp: str
