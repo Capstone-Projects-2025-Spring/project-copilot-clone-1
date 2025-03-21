@@ -6,16 +6,27 @@
   "engines": {
     "vscode": "^1.88.0"
   },
+  
   "categories": [
     "Other"
   ],
-  "activationEvents": ["onStartupFinished"],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "educode.helloWorld",
-        "title": "Hello World"
+        "command": "educode.askQuestion",
+        "title": "Ask Educode"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "educode.askQuestion",
+        "key": "alt+cmd+u",
+        "when": "editorTextFocus"
+        
       }
     ]
   },
@@ -33,7 +44,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
-    "@types/vscode": "^1.97.0",
+    "@types/vscode": "^1.88.0",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
     "@typescript-eslint/parser": "^8.22.0",
     "@vscode/test-cli": "^0.0.10",
@@ -46,6 +57,7 @@
   },
   "dependencies": {
     "dotenv": "^16.4.7",
-    "mongodb": "^6.13.1"
+    "mongodb": "^6.13.1",
+    "prettier": "^3.5.3"
   }
 }

@@ -11,8 +11,8 @@ To use **EduCode**, users need:
 **Tech Stack**
 - TypeScript, Front End
 - Python (FastAPI), Server Side
-- TBD, Database
-- OpenAI, LLM
+- MongoDB, Database
+- Ollama, LLM
 
 **Project Management Tools**
 - Jira
