@@ -38,6 +38,9 @@ async def get_suggestion(request: CodeRequest) -> dict:
 
 @router.post('/askEducode', status_code=200, response_model=ExplanationResponse)
 async def get_explanation(request:ExplanationRequest) -> dict:
+    """
+      This route returns AI generated explanations based on user's prompt
+    """
     try:
       output = await explainConcept(request.question)
       return {"output":output, "status":200}

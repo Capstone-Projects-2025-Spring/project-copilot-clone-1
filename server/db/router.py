@@ -14,11 +14,10 @@ COLLECTION_NAME = os.environ.get("MONGO_COLLECTION_NAME")
 router = APIRouter()
 database = Database(uri=URI, db_name=DB_NAME, collection_name=COLLECTION_NAME)
 
-
 @router.post("/logs", status_code=200)
 def log_data(data: CodeSnippet):
     """
-    Write data to a collection in database
+        Write data to a collection in database
     """
     try:
         # add input verification here
@@ -28,16 +27,18 @@ def log_data(data: CodeSnippet):
         raise HTTPException(status_code=500)
 
 
-@router.get("/logs", status_code=200)
-def read_logs():
-    """
-    Read from a collection in database
-    """
-    return [{"_id": "complexObject_FF294F", "timestamp": "2025-02-19 10:32:00 AM", "accepted": "false"}]
+# @router.get("/logs", status_code=200)
+# def read_logs():
+#     """
+#     Read from a collection in database
+#     """
+#     return [{"_id": "complexObject_FF294F", "timestamp": "2025-02-19 10:32:00 AM", "accepted": "false"}]
 
 @router.post('/suggestion-logs', status_code=200)
 def log_suggestion(data: SuggestionLog):
-    """"""
+    """
+        Writes AI generated suggestions to 'CodeSnippets' collection.
+    """
     # Save the suggestion log to the database
     result = database.send_suggestion_log(
         user_id=data.userId,
@@ -51,7 +52,9 @@ def log_suggestion(data: SuggestionLog):
 
 @router.post('/user-input-logs', status_code=200)
 def log_user_input(data: UserInputLog):
-    """"""
+    """
+        Writes data to the 'interval_logging' collection
+    """
     # Save the user input log to the database
     result = database.send_interval_log(
         user_id=data.userId,
