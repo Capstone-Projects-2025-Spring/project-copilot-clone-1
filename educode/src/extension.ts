@@ -308,7 +308,7 @@ async function requireGitHubAuthentication() {
 		if (session) {
 			const userData = {
 				gitHubUsername: session.account.label,
-				accountId: session.account.id,
+				accountId: session.account.id.toString(),
 
 			};
             console.log(userData);
@@ -327,7 +327,9 @@ async function requireGitHubAuthentication() {
 	}
 }
 
-async function registerUserInMongoDB(userData: { gitHubUsername: string , accountId: string }) {
+async function registerUserInMongoDB(userData: { gitHubUsername: string | number , accountId: string }) {
+
+    console.log(userData)
     try {
 		   const response = await fetch('http://localhost:8000/storeUser', {
             method: 'POST',
@@ -336,12 +338,11 @@ async function registerUserInMongoDB(userData: { gitHubUsername: string , accoun
             },
             body: JSON.stringify(userData)
         });
-        // might want to console log this stuff instead of showing a window messagebc users dont care if their user got stored
         if (response.status === 200) {
             console.log(`User added successfully as ${userData.accountId}`); // {session.account.label}`);
         }else {
-			//vscode.window.showInformationMessage(data) // {session.account.label}`);
-            console.log(`Failed to add user:`); // ${data.detail || 'Unknown error'}`);
+
+            console.log(`Failed to add user:`); 
         }
     } catch (error) {
 		console.log(`Failed to add user: ${error}`);
