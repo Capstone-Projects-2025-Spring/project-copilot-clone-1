@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from .llm import explainConcept, generate_suggestion
+from .llm import explainConcept, generate_suggestion, generate_incorrect_suggestion
 from .models import CodeRequest, ExplanationRequest, ExplanationResponse, SuggestionResponse
 
 router = APIRouter()
@@ -31,6 +31,15 @@ async def get_suggestion(request: CodeRequest) -> dict:
         #     instructions="Complete the code. Do not add any comments and keep function as concise as possible.",
         # )
         generated_code = await generate_suggestion(request)
+        return {"Response": generated_code}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@router.post('/suggest-inc', status_code=200, response_model=SuggestionResponse)
+async def get_incorrect_suggestion(request: CodeRequest) -> dict:
+    try:
+        generated_code = await generate_incorrect_suggestion(request)
         return {"Response": generated_code}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
