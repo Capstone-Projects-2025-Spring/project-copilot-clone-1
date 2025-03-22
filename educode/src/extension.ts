@@ -14,9 +14,11 @@ let loggingTimer: NodeJS.Timeout | null = null; // Timer for interval logging
 // Extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
 
+    await requireGitHubAuthentication();
 
-
-	await requireGitHubAuthentication();
+    let acceptedMostRecentSugg = false;
+    let suggestorCancelled = false;
+    let mostRecentAcceptedSuggestion: string;
 
     // Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
@@ -75,16 +77,30 @@ export async function activate(context: vscode.ExtensionContext) {
 		provideInlineCompletionItems: async(document, position, context, token):Promise<InlineCompletionItem[] | InlineCompletionList> => {
 			console.log("provideInlineCompletionItems Called");
 			console.log(position);
+
+            if (acceptedMostRecentSugg) {
+                console.log("provideInlineCompletionItems cancelled (recently accepted suggestion)");
+                suggestorCancelled = true;
+                acceptedMostRecentSugg = false;
+                return [];
+            }
+
 			const res = await fetch('http://localhost:8000/suggest', {method: 'POST',
 				headers: {
 					'Content-Type': 'application/json' },
-				body: JSON.stringify({code: document.getText(), instructions:"You are an AI code assistant. Given the code sample, return the remaining piece to finish the code, without rewriting existing code, or adding explanation"})
+				body: JSON.stringify({code: document.getText(), instructions:""})
 			});
 				
 			console.log(res.status);
 			const json = await res.json() as {Response:string}
 			console.log(res.status, json);//logs the status of the llm response and the code given ->
 			const suggestion = json["Response"];
+
+            if (suggestion == mostRecentAcceptedSuggestion) {
+                console.log("provideInlineCompletionItems cancelled (duplicate of most recent accepted suggestion given)");
+                return [];
+            }
+
 			const range = new vscode.Range(position.translate(0, 0), position.translate(0,suggestion.length));
 			// const text = document.getText(range);
 			// console.log("provideInlineCompletionItems Called");
@@ -105,41 +121,51 @@ export async function activate(context: vscode.ExtensionContext) {
                     title: "logItemAccepted",
                     command: "logItemAccepted",
                     arguments: [suggestion, document.uri.toString(), position, timestamp]
-                }
+                },
+                range: new vscode.Range(position, position)
             } as InlineCompletionItem];
 
             return { items: itemList };
         }
     };
 
-    vscode.languages.registerInlineCompletionItemProvider({ pattern: "**" }, suggestor);
+    if (!suggestorCancelled)
+    {
+        vscode.languages.registerInlineCompletionItemProvider({ pattern: "**" }, suggestor);
 
-    // Register command to log when an item is accepted
-    vscode.commands.registerCommand("logItemAccepted", (suggestion: string, uri: string, position: vscode.Position, timestamp: string) => {
-        const acceptanceTimestamp = new Date().toISOString();
-        console.log(`Suggestion accepted: ${suggestion} at ${acceptanceTimestamp}`);
-        logSuggestionEvent('Accepted', suggestion, uri, position, acceptanceTimestamp);
-        completionTracker.delete(uri); // Remove the tracked suggestion after acceptance
-    });
+        // Register command to log when an item is accepted
+        vscode.commands.registerCommand("logItemAccepted", (suggestion: string, uri: string, position: vscode.Position, timestamp: string) => {
+            const acceptanceTimestamp = new Date().toISOString();
+            console.log(`Suggestion accepted: ${suggestion} at ${acceptanceTimestamp}`);
+            logSuggestionEvent('Accepted', suggestion, uri, position, acceptanceTimestamp);
+            completionTracker.delete(uri); // Remove the tracked suggestion after acceptance
+            acceptedMostRecentSugg = true;
+            mostRecentAcceptedSuggestion = suggestion;
+        });
 
-    // Listen for text changes to detect rejected suggestions
-    context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            const document = editor.document;
-            const trackedSuggestion = completionTracker.get(document.uri.toString());
-            if (trackedSuggestion) {
-                const text = document.getText();
-                // Check if the suggestion was not accepted
-                if (!text.includes(trackedSuggestion.text)) {
-                    const rejectionTimestamp = new Date().toISOString();
-                    console.log(`Suggestion rejected: ${trackedSuggestion.text} at ${rejectionTimestamp}`);
-                    logSuggestionEvent('Rejected', trackedSuggestion.text, document.uri.toString(), trackedSuggestion.position, rejectionTimestamp);
-                    completionTracker.delete(document.uri.toString());
+        // Listen for text changes to detect rejected suggestions
+        context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
+            const editor = vscode.window.activeTextEditor;
+            if (editor) {
+                const document = editor.document;
+                const trackedSuggestion = completionTracker.get(document.uri.toString());
+                if (trackedSuggestion) {
+                    const text = document.getText();
+                    // Check if the suggestion was not accepted
+                    if (!text.includes(trackedSuggestion.text)) {
+                        const rejectionTimestamp = new Date().toISOString();
+                        console.log(`Suggestion rejected: ${trackedSuggestion.text} at ${rejectionTimestamp}`);
+                        logSuggestionEvent('Rejected', trackedSuggestion.text, document.uri.toString(), trackedSuggestion.position, rejectionTimestamp);
+                        completionTracker.delete(document.uri.toString());
+                    }
                 }
             }
-        }
-    }));
+        }));
+    }
+    else
+    {
+        suggestorCancelled = false;
+    }
 
 	// The command "Hello World" has been defined in the package.json file
 	// Implementation of the command is providedwith registerCommand
@@ -282,7 +308,7 @@ async function requireGitHubAuthentication() {
 		if (session) {
 			const userData = {
 				gitHubUsername: session.account.label,
-				accountId: session.account.id,
+				accountId: session.account.id.toString(),
 
 			};
             console.log(userData);
@@ -301,7 +327,9 @@ async function requireGitHubAuthentication() {
 	}
 }
 
-async function registerUserInMongoDB(userData: { gitHubUsername: string , accountId: string }) {
+async function registerUserInMongoDB(userData: { gitHubUsername: string | number , accountId: string }) {
+
+    console.log(userData)
     try {
 		   const response = await fetch('http://localhost:8000/storeUser', {
             method: 'POST',
@@ -310,12 +338,11 @@ async function registerUserInMongoDB(userData: { gitHubUsername: string , accoun
             },
             body: JSON.stringify(userData)
         });
-        // might want to console log this stuff instead of showing a window messagebc users dont care if their user got stored
         if (response.status === 200) {
             console.log(`User added successfully as ${userData.accountId}`); // {session.account.label}`);
         }else {
-			//vscode.window.showInformationMessage(data) // {session.account.label}`);
-            console.log(`Failed to add user:`); // ${data.detail || 'Unknown error'}`);
+
+            console.log(`Failed to add user:`); 
         }
     } catch (error) {
 		console.log(`Failed to add user: ${error}`);
