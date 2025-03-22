@@ -3,8 +3,12 @@ import { suggestSnippet } from './suggest';
 import * as path from 'path';
 import { InlineCompletionItem, InlineCompletionList, ProviderResult } from 'vscode';
 import getWebViewContent from './webViewHTML';
+import dotenv from 'dotenv';
 
+dotenv.config();
 
+// hostname for http server
+const HOSTNAME = process.env.HOSTNAME;
 // Interval for logging user input (e.g., every 5 seconds)
 const LOGGING_INTERVAL = 5000; // 5 seconds
 
@@ -85,7 +89,8 @@ export async function activate(context: vscode.ExtensionContext) {
                 return [];
             }
 
-			const res = await fetch('http://localhost:8000/suggest', {method: 'POST',
+            console.log(HOSTNAME + 'suggest')
+			const res = await fetch(HOSTNAME + 'suggest', {method: 'POST',
 				headers: {
 					'Content-Type': 'application/json' },
 				body: JSON.stringify({code: document.getText(), instructions:""})
