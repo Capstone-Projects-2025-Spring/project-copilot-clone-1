@@ -1,4 +1,4 @@
-fastapi[standard]
-openai
-pymongo
-pytest
+fastapi[standard] == 0.115.9
+openai == 1.65.1
+pymongo == 4.11.1
+pytest == 8.3.4
