@@ -3,9 +3,9 @@ import { suggestSnippet } from './suggest';
 import * as path from 'path';
 import { InlineCompletionItem, InlineCompletionList, ProviderResult } from 'vscode';
 import getWebViewContent from './webViewHTML';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({path: path.resolve(__dirname, '../.env')});
 
 // hostname for http server
 const HOSTNAME = process.env.HOSTNAME;
@@ -17,7 +17,6 @@ let loggingTimer: NodeJS.Timeout | null = null; // Timer for interval logging
 // This method is called when your extension is activated
 // Extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
-
     await requireGitHubAuthentication();
 
     let acceptedMostRecentSugg = false;
@@ -88,8 +87,6 @@ export async function activate(context: vscode.ExtensionContext) {
                 acceptedMostRecentSugg = false;
                 return [];
             }
-
-            console.log(HOSTNAME + 'suggest')
 			const res = await fetch(HOSTNAME + 'suggest', {method: 'POST',
 				headers: {
 					'Content-Type': 'application/json' },
@@ -191,7 +188,7 @@ export async function activate(context: vscode.ExtensionContext) {
             console.log(`message Command:${message.command}, text:${message.text}`);
             if (message.command === "ask"){
                 try{
-                    const res = await fetch('http://localhost:8000/askEducode',{method:"POST",headers: {
+                    const res = await fetch(HOSTNAME + 'askEducode',{method:"POST",headers: {
                         'Content-Type': 'application/json' }, body:JSON.stringify({question: message.text})});
                     console.log(res);
                     /**
@@ -231,7 +228,7 @@ async function logUserInput(code: string, filePath: string) {
 
         // Send log data to the server
         try {
-            const postRes = await fetch('http://localhost:8000/user-input-logs', {
+            const postRes = await fetch(HOSTNAME + 'user-input-logs', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(logData)
@@ -254,7 +251,7 @@ async function logFileContent(code: string, filePath: string, position: vscode.P
     const timestamp = new Date().toISOString();
     const fileName = path.basename(filePath);
 	//Post log of file content, file name and cursor position to the fastAPI server
-    const postRes = await fetch('http://localhost:8000/logs', {
+    const postRes = await fetch(HOSTNAME + 'logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, fileName, position, timestamp })
@@ -283,7 +280,7 @@ async function logSuggestionEvent(eventType: string, suggestion: string, uri: st
 
         // Send log data to the server
         try {
-            const postRes = await fetch('http://localhost:8000/suggestion-logs', {
+            const postRes = await fetch(HOSTNAME + 'suggestion-logs', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -336,7 +333,7 @@ async function registerUserInMongoDB(userData: { gitHubUsername: string | number
 
     console.log(userData)
     try {
-		   const response = await fetch('http://localhost:8000/storeUser', {
+		   const response = await fetch(HOSTNAME + 'storeUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
