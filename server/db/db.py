@@ -14,10 +14,10 @@ class Database:
             self.collection = self.db[collection_name]
             self.interval_collection = self.db["interval_logging"]  # New collection for interval logs
             self.users = self.db["users"]
-            print(f"Successfully connected to MongoDB database: {db_name}")
+#            print(f"Successfully connected to MongoDB database: {db_name}")
     
         except Exception as e:
-            print(f"Failed to connect to MongoDB: {e}")
+#            print(f"Failed to connect to MongoDB: {e}")
             raise e  # Optionally re-raise the exception to stop execution
 
     def send_code_snippet(self, user_id, language, code):
@@ -28,7 +28,7 @@ class Database:
         }
 
         result = self.collection.insert_one(data)
-        print(result)
+#        print(result)
         return result
 
     def send_suggestion_log(self, user_id, event_type, suggestion, fileName, position, timestamp):
@@ -42,7 +42,7 @@ class Database:
         }
 
         result = self.collection.insert_one(data)
-        print(result)
+#        print(result)
         return result
 
     def send_interval_log(self, user_id, code, fileName, timestamp):
@@ -54,7 +54,7 @@ class Database:
         }
 
         result = self.interval_collection.insert_one(data)
-        print(result)
+#        print(result)
         return result
 
     def retrieve_code_snippets(self, user_id, language=None):
@@ -73,7 +73,7 @@ class Database:
     def register_user(self, gitHubUsername, accountId):
         try: 
             existing_user = self.users.find_one({"accountId":accountId})
-            print(existing_user)
+#            print(existing_user)
 
             if existing_user:
                 print("User already Exists")
@@ -88,33 +88,3 @@ class Database:
             return {"message": "User added successfully", "status": 200}
         except Exception as e:
             print(f"Failed to Fetch/Post User: {e}")
-
-
-# Example usage:
-if __name__ == "__main__":
-    # MongoDB URI 
-    uri = "mongodb+srv://Kushi123:KushiTemple25@capcluster.lkmb9.mongodb.net/?retryWrites=true&w=majority"
-    
-    # Database and collection names
-    db_name = "user_code_db"
-    collection_name = "code_snippets"
-    
-    # Initialize the database connection
-    try:
-        db = Database(uri, db_name, collection_name)
-        
-        # print("sending code snippet")
-        # Insert a code snippet
-        inserted_id = db.send_code_snippet(
-            user_id = "12345",
-            language = "Java",
-            code = "console.log('Hello, world!');"
-        )
-        print(f"Inserted document ID: {inserted_id.inserted_id}") 
-        
-        # Retrieve code snippets for a user
-        snippets = db.retrieve_code_snippets(user_id = "12345")
-        print("Retrieved code snippets:", snippets)
-    
-    except Exception as e:
-        print(f"An error occurred during execution: {e}")

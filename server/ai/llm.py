@@ -40,7 +40,7 @@ async def generate_suggestion(request: CodeRequest):
             temperature=0.2,
         )
         generated_code = response.choices[0].message.content
-        print(generated_code)
+#        print(generated_code)
         return generated_code
     except Exception as e:
         raise Exception(f"Error generating suggestion: {str(e)}")
@@ -71,7 +71,7 @@ async def explainConcept(question:str)-> str:
             temperature=0.2,
         )
         generated_code = response.choices[0].message.content
-        print(generated_code)
+#        print(generated_code)
         return generated_code
     except Exception as e:
         raise Exception(f"Error generating concept explanation: {str(e)}")
